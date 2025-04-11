@@ -1,8 +1,7 @@
 import sqlite3
-import tkinter as tk
-from tkinter import messagebox
 import csv
 from datetime import datetime
+
 
 class Gestao:
     def __init__(self, banco):
@@ -30,7 +29,7 @@ class Gestao:
             CREATE TABLE IF NOT EXISTS clientes (
                 id INTEGER PRIMARY KEY,
                 nome TEXT,
-                email TEXT
+                telefone INTEGER
             )
         ''')
         self.conn.commit()
@@ -63,7 +62,6 @@ class Gestao:
             )
         ''')
         self.conn.commit()
-
     def registrar_operacao(self, operacao, produto, marca, quantidade):
         cursor = self.conn.cursor()
         cursor.execute("INSERT INTO log_operacoes (operacao, produto, marca, quantidade) VALUES (?, ?, ?, ?)",
@@ -105,9 +103,9 @@ class Gestao:
         else:
             print(f"{produto} da marca {marca} não encontrado no estoque.")
 
-    def adicionar_cliente(self, nome, email):
+    def adicionar_cliente(self, nome, telefone):
         cursor = self.conn.cursor()
-        cursor.execute("INSERT INTO clientes (nome, email) VALUES (?, ?)", (nome, email))
+        cursor.execute("INSERT INTO clientes (nome, telefone) VALUES (?, ?)", (nome, telefone))
         self.conn.commit()
 
     def registrar_venda(self, cliente_id, produto_id, quantidade):
@@ -136,7 +134,7 @@ class Gestao:
 
     def listar_clientes(self):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id, nome, email FROM clientes")
+        cursor.execute("SELECT id, nome, telefone FROM clientes")
         clientes = cursor.fetchall()
         return clientes
 
@@ -160,86 +158,13 @@ class Gestao:
         ''', (str(ano), f'{mes:02d}'))
         operacoes = cursor.fetchall()
 
-        nome_arquivo = f'relatorio_{ano}_{mes:02d}.csv'
-        with open(nome_arquivo, mode='w', newline='') as arquivo:
+        relatorio = f'relatorio_{ano}_{mes:02d}.csv'
+        with open(relatorio, mode='w', newline='') as arquivo:
             escritor_csv = csv.writer(arquivo)
             escritor_csv.writerow(['Operação', 'Produto', 'Marca', 'Quantidade', 'Data/Hora'])
             escritor_csv.writerows(operacoes)
 
-        print(f'Relatório gerado: {nome_arquivo}')
+        print(f'Relatório gerado: {relatorio}')
 
     def __del__(self):
         self.conn.close()
-
-def adicionar_produto():
-    produto = entry_produto.get()
-    marca = entry_marca.get()
-    try:
-        quantidade = int(entry_quantidade.get())
-        if produto and marca and quantidade > 0:
-            sistema.adicionar_produto(produto, marca, quantidade)
-            messagebox.showinfo("Sucesso", "Produto adicionado com sucesso!")
-        else:
-            messagebox.showerror("Erro", "Preencha todos os campos corretamente.")
-    except ValueError:
-        messagebox.showerror("Erro", "Quantidade deve ser um número inteiro.")
-
-def remover_produto():
-    produto = entry_produto.get()
-    marca = entry_marca.get()
-    try:
-        quantidade = int(entry_quantidade.get())
-        if produto and marca and quantidade > 0:
-            sistema.remover_produto(produto, marca, quantidade)
-            messagebox.showinfo("Sucesso", "Produto removido com sucesso!")
-            listar_produtos()
-        else:
-            messagebox.showerror("Erro", "Preencha todos os campos corretamente.")
-    except ValueError:
-        messagebox.showerror("Erro", "Quantidade deve ser um número inteiro.")
-
-def listar_produtos():
-    produtos = sistema.listar_produtos()
-    lista_produtos.delete(0, tk.END)
-    for produto in produtos:
-        lista_produtos.insert(tk.END, f"{produto[0]} - {produto[1]} - {produto[2]}: {produto[3]} unidades")
-
-def adicionar_cliente():
-    nome = entry_nome.get()
-    email = entry_email.get()
-    if nome and email:
-        sistema.adicionar_cliente(nome, email)
-        messagebox.showinfo("Sucesso", "Cliente adicionado com sucesso!")
-    else:
-        messagebox.showerror("Erro", "Preencha todos os campos corretamente.")
-
-def listar_clientes():
-    clientes = sistema.listar_clientes()
-    lista_clientes.delete(0, tk.END)
-    for cliente in clientes:
-        lista_clientes.insert(tk.END, f"{cliente[0]} - {cliente[1]} - {cliente[2]}")
-
-def registrar_venda():
-    try:
-        cliente_id = int(entry_cliente_id.get())
-        produto_id = int(entry_produto_id.get())
-        quantidade = int(entry_quantidade_venda.get())
-        sistema.registrar_venda(cliente_id, produto_id, quantidade)
-        messagebox.showinfo("Sucesso", "Venda registrada com sucesso!")
-        listar_produtos()
-    except ValueError:
-        messagebox.showerror("Erro", "IDs e quantidade devem ser números inteiros.")
-
-def listar_vendas():
-    vendas = sistema.listar_vendas()
-    lista_vendas.delete(0, tk.END)
-    for venda in vendas:
-        lista_vendas.insert(tk.END, f"{venda[0]} - {venda[1]} - {venda[2]}: {venda[3]} unidades em {venda[4]}")
-
-def gerar_relatorio():
-    try:
-        ano = int(entry_ano.get())
-        mes = int(entry_mes.get())
-        sistema.gerar_relatorio_mensal(ano, mes)
-        messagebox.showinfo("Sucesso", f"Relatório gerado para {mes}/{ano}!")
-    except ValueError:
