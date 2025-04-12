@@ -64,9 +64,9 @@ Que ação você deseja realizar?
 Adicione uma imagem com o terminal em funcionamento no seu repositório, por exemplo:
 
 ```markdown
-![terminal funcionando](https://github.com/ketlinvkbs/estoque-de-produtos-e-relat-rio-de-vendas/blob/main/Captura%20de%20tela%202025-04-11%20182648.png)
-![terminal funcionando]()
-![terminal funcionando]()
+![terminal funcionando](Captura de tela 2028-04-11 182619.png)
+![terminal funcionando](Captura de tela 2025-04-11 180021.png)
+![terminal funcionando](Captura de tela 2025-04-11 182648.png)
 ```
 
 ---
